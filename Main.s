@@ -134,13 +134,46 @@ LOADBACKGROUNDPALETTEDATA:
 
 	INFLOOP:
     jsr Control
+	lda $22
+	cmp #%00000000
+	bne :+
 	ldx #0
 	jsr Move
+	:
+	lda $22
+	cmp #%00000001
+	bne :+
 	ldx #16
 	jsr Move
+	:
+	jsr Change
+
     JMP INFLOOP
 
 
+Change:
+	lda Pressing
+	and #%00000001
+	and $22
+	cmp #%00000001
+	bne :+
+	ldx #%00000000
+	stx $22
+	rts
+	:
+	lda Pressing
+	and #%00000001
+	cmp #%00000001
+	bne :+
+	lda $22
+	and #%00000000
+	cmp #%00000000
+	bne :+
+	ldx #%00000001
+	stx $22
+	rts
+	:
+	rts
 
 Control:
   jsr intiControl
@@ -244,10 +277,14 @@ DownLeft:
 
 
 Up:
+	lda $0200,X
+	cmp #$07
+	beq :+
 	dec $0200,X
 	dec $0204,X
 	dec $0208,X
 	dec $020C,X
+	:
 	cpy #%10000000
 	beq :+
 	jmp Wait
@@ -282,6 +319,7 @@ Right:
 	inc $0207,X
 	inc $020b,X
 	inc $020f,X
+
 	cpy #%10000000
 	beq :+
 	jmp Wait
